@@ -18,9 +18,9 @@
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE FlexibleContexts  #-}
-{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE OverloadedStrings   #-}
 
 module Fusion where
 
@@ -33,8 +33,9 @@ import qualified Data.Vector                as V
 import           System.IO.Unsafe
 import           Types
 
-type Content = BS.ByteString
 type MonadFusion = MonadError FusionError
+type Content     = BS.ByteString
+type Aggregate   = FeatureCollection -> FeatureCollection -> FeatureCollection
 
 decodeE :: (MonadFusion m) => Content -> m FeatureCollection
 decodeE bs = case eitherDecode bs of
@@ -43,14 +44,14 @@ decodeE bs = case eitherDecode bs of
 
 geoFusion ::
      (MonadIO m, MonadFusion m)
-  => FilePath
+  => Aggregate
   -> FilePath
-  -> (FeatureCollection -> FeatureCollection -> FeatureCollection)
+  -> FilePath
   -> m Content
-geoFusion source target aggregate = do
-   sourceContent <- liftIO $ BS.readFile source
-   targetContent <- liftIO $ BS.readFile target
-   monolith <- decodeE sourceContent
+geoFusion aggregate monolithPath absorbablePath = do
+   monolithContent <- liftIO $ BS.readFile monolithPath
+   targetContent <- liftIO $ BS.readFile absorbablePath
+   monolith <- decodeE monolithContent
    absorbable <- decodeE targetContent
    let aggregat = aggregate monolith absorbable
    pure . encode $ aggregat
