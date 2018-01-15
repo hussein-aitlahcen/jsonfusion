@@ -40,6 +40,9 @@ Pour rendre la fusion plus claire, j'utilise des lens, qui me premettent de trav
 la structure et de cibler les éléments que je souhaite modifier (purely, obviously).
 
 Il suffit d'exécuter les commandes suivants pour obtenir le fichier geojson:
+
 `cd lib`
+
 `stack build`
+
 `stack exec -- jsonfusion-exe ./../files/admin_level_6.geojson ./../files/admin_level_4.geojson ./belgium.geojson`
