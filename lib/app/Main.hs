@@ -34,9 +34,9 @@ brusselFeatureId = 54094
 main :: IO ()
 main = do
   -- Yeah yeah we sould correctly parse our input arguments :P
-  (provincesPath:regions:beligiumPath:_)  <- getArgs
+  (provincesPath:regionsPath:beligiumPath:_)  <- getArgs
   provincesContent <- readF provincesPath
-  regionsContent   <- readF regions
+  regionsContent   <- readF regionsPath
   merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
   case merged of
     Left msg          -> putStrLn $ "Unlucky boy: " ++ show msg
@@ -46,7 +46,7 @@ main = do
     writeF = BS.writeFile
     -- Folding behavior
     aggregate provinces regions =
-      let regionFeatures    = view features $ regions
-          isBrusselFeature  = (==) brusselFeatureId
-          filterBrusselOnly = V.filter (isBrusselFeature . view featureId)
-      in provinces & features %~ ((V.++) (filterBrusselOnly regionFeatures))
+      let regionFeatures    = view features regions
+          isBrusselFeature  = (==) brusselFeatureId . view featureId
+          filterBrusselOnly = V.filter isBrusselFeature
+      in provinces & features %~ (V.++) (filterBrusselOnly regionFeatures)
