@@ -3,10 +3,8 @@ module Main where
 import           Control.Lens
 import           Control.Monad.Except
 import qualified Data.ByteString.Lazy.Char8 as BS
-import           Data.Map                   as M
 import qualified Data.Vector                as V
 import           Fusion
-import           System.IO.Unsafe
 import           Types
 
 -- Could have use the ISO string aswell,

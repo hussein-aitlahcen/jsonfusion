@@ -28,9 +28,7 @@ import           Control.Lens
 import           Control.Monad.Except
 import           Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as BS
-import           Data.Map                   as M
 import qualified Data.Vector                as V
-import           System.IO.Unsafe
 import           Types
 
 type MonadFusion = MonadError FusionError
