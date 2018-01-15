@@ -1,0 +1,60 @@
+-- This file has been generated from package.yaml by hpack version 0.20.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 4901683870851d80e5a38aa4091ef66e5b0a35cbd7fb5cc67b3f83f0b7db54fa
+
+name:           geotransform
+version:        0.1.0.0
+homepage:       https://github.com/githubuser/hussein-aitlahcen#readme
+bug-reports:    https://github.com/githubuser/hussein-aitlahcen/issues
+author:         Hussein Ait Lahcen
+maintainer:     hussein.aitlahcen@gmail.com
+copyright:      2018 Hussein Ait Lahcen
+license:        GPL-3
+build-type:     Simple
+cabal-version:  >= 1.10
+
+source-repository head
+  type: git
+  location: https://github.com/githubuser/hussein-aitlahcen
+
+library
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , lens
+    , lens-aeson
+    , mtl
+    , text
+    , vector
+  exposed-modules:
+      Fusion
+      Types
+  other-modules:
+      Paths_geotransform
+  default-language: Haskell2010
+
+executable geotransform-exe
+  main-is: Main.hs
+  hs-source-dirs:
+      app
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , geotransform
+    , lens
+    , lens-aeson
+    , mtl
+    , text
+    , vector
+  other-modules:
+      Paths_geotransform
+  default-language: Haskell2010
