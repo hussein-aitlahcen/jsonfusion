@@ -1,10 +1,30 @@
+-- Main.hs ---
+
+-- Copyright (C) 2018 Hussein Ait-Lahcen
+
+-- Author: Hussein Ait-Lahcen <hussein.aitlahcen@gmail.com>
+
+-- This program is free software; you can redistribute it and/or
+-- modify it under the terms of the GNU General Public License
+-- as published by the Free Software Foundation; either version 3
+-- of the License, or (at your option) any later version.
+
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU General Public License for more details.
+
+-- You should have received a copy of the GNU General Public License
+-- along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 module Main where
 
-import           Control.Lens
-import           Control.Monad.Except
+import           Control.Lens               (view, (%~), (&))
+import           Control.Monad.Except       (runExceptT)
 import qualified Data.ByteString.Lazy.Char8 as BS
 import qualified Data.Vector                as V
-import           Fusion
+import           JsonFusion                 (jsonFusion)
+import           System.Environment         (getArgs)
 import           Types
 
 -- Could have use the ISO string aswell,
@@ -13,14 +33,17 @@ brusselFeatureId = 54094
 
 main :: IO ()
 main = do
-  let monolith   = "../files/admin_level_6.geojson"
-      absorbable = "../files/admin_level_4.geojson"
-      output     = "./merged.geojson"
-  merged <- runExceptT $ geoFusion aggregate monolith absorbable output
+  -- Yeah yeah we sould correctly parse our input arguments :P
+  (provincesPath:regions:beligiumPath:_)  <- getArgs
+  provincesContent <- readF provincesPath
+  regionsContent   <- readF regions
+  merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
   case merged of
-    Left msg -> putStrLn $ "Unlucky boy: " ++ show msg
-    _        -> pure ()
+    Left msg          -> putStrLn $ "Unlucky boy: " ++ show msg
+    Right fullBelgium -> writeF beligiumPath fullBelgium
   where
+    readF  = BS.readFile
+    writeF = BS.writeFile
     -- Folding behavior
     aggregate first second =
       let targetFeatures    = view features $ second

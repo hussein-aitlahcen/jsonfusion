@@ -1,4 +1,4 @@
-name:                geotransform
+name:                jsonfusion
 version:             0.1.0.0
 github:              "githubuser/hussein-aitlahcen"
 license:             GPL-3
@@ -21,7 +21,7 @@ library:
   source-dirs: src
 
 executables:
-  geotransform-exe:
+  jsonfusion-exe:
     main:                Main.hs
     source-dirs:         app
     ghc-options:
@@ -29,4 +29,4 @@ executables:
     - -rtsopts
     - -with-rtsopts=-N
     dependencies:
-    - geotransform
+    - jsonfusion

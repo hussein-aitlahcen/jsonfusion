@@ -2,9 +2,9 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 4901683870851d80e5a38aa4091ef66e5b0a35cbd7fb5cc67b3f83f0b7db54fa
+-- hash: da7fd021c6ef5a7e42a9c955e1624d62624139a915c2458e1051fc1d2578e477
 
-name:           geotransform
+name:           jsonfusion
 version:        0.1.0.0
 homepage:       https://github.com/githubuser/hussein-aitlahcen#readme
 bug-reports:    https://github.com/githubuser/hussein-aitlahcen/issues
@@ -33,13 +33,13 @@ library
     , text
     , vector
   exposed-modules:
-      Fusion
+      JsonFusion
       Types
   other-modules:
-      Paths_geotransform
+      Paths_jsonfusion
   default-language: Haskell2010
 
-executable geotransform-exe
+executable jsonfusion-exe
   main-is: Main.hs
   hs-source-dirs:
       app
@@ -49,12 +49,12 @@ executable geotransform-exe
     , base >=4.7 && <5
     , bytestring
     , containers
-    , geotransform
+    , jsonfusion
     , lens
     , lens-aeson
     , mtl
     , text
     , vector
   other-modules:
-      Paths_geotransform
+      Paths_jsonfusion
   default-language: Haskell2010

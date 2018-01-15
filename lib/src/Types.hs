@@ -1,4 +1,3 @@
-
 -- Types.hs ---
 
 -- Copyright (C) 2018 Hussein Ait-Lahcen
@@ -32,8 +31,6 @@ import           Data.Map
 import           Data.Text
 import           Data.Vector
 import           GHC.Generics
-
-data FusionError = InvalidScheme String deriving Show
 
 type ObjectType = Text
 type Geocoding  = Value

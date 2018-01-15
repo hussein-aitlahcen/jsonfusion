@@ -1,4 +1,4 @@
--- Fusion.hs ---
+-- JsonFusion.hs ---
 
 -- Copyright (C) 2018 Hussein Ait-Lahcen
 
@@ -22,41 +22,32 @@
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE OverloadedStrings   #-}
 
-module Fusion where
+module JsonFusion
+  ( jsonFusion
+  ) where
 
-import           Control.Lens
-import           Control.Monad.Except
-import           Data.Aeson
+import           Control.Monad.Except       (MonadError, throwError)
+import           Data.Aeson                 (FromJSON, ToJSON, eitherDecode,
+                                             encode)
 import qualified Data.ByteString.Lazy.Char8 as BS
-import qualified Data.Vector                as V
-import           Types
 
+data FusionError = InvalidScheme String deriving Show
 type MonadFusion = MonadError FusionError
 type Content     = BS.ByteString
-type Aggregate   = FeatureCollection -> FeatureCollection -> FeatureCollection
+type Aggregate a = a -> a -> a
 
-decodeE :: (MonadFusion m) => Content -> m FeatureCollection
+decodeE :: (MonadFusion m, FromJSON a, ToJSON a) => Content -> m a
 decodeE bs = case eitherDecode bs of
                Right value -> pure value
                Left msg    -> throwError $ InvalidScheme msg
 
-geoFusion ::
-     (MonadIO m, MonadFusion m)
-  => Aggregate
-  -> FilePath
-  -> FilePath
-  -> FilePath
-  -> m ()
-geoFusion aggregate monolithPath absorbablePath outputPath = do
-  say "Reading files..."
-  monolithContent <- liftIO $ BS.readFile monolithPath
-  targetContent   <- liftIO $ BS.readFile absorbablePath
-  say "Decoding contents..."
+jsonFusion :: (MonadFusion m, FromJSON a, ToJSON a)
+  => Aggregate a
+  -> Content
+  -> Content
+  -> m Content
+jsonFusion aggregate monolithContent absorbableContent = do
   monolith   <- decodeE monolithContent
-  absorbable <- decodeE targetContent
-  say "Flushing to output..."
+  absorbable <- decodeE absorbableContent
   let aggregat = aggregate monolith absorbable
-  liftIO $ BS.writeFile outputPath $ encode aggregat
-  say "Done."
-  where
-    say msg = liftIO $ putStrLn msg
+  pure . encode $ aggregat
