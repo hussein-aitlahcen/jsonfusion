@@ -39,17 +39,18 @@ type MonadFusion = MonadError FusionError
 data FusionError = InvalidScheme String deriving Show
 
 type ObjectType = Text
-type Geocoding = Value
-type Features = Vector Feature
+type Geocoding  = Value
+type Features   = Vector Feature
+
+type FeatureId   = Int
+type OsmType     = Text
+type FeatureName = Text
+
 data FeatureCollection = FeatureCollection
   { _typeCollection :: ObjectType
   , _geocoding      :: Geocoding
   , _features       :: Features
   } deriving Show
-
-type FeatureId = Int
-type OsmType = Text
-type FeatureName = Text
 
 data Feature = Feature
   { _featureId   :: FeatureId
