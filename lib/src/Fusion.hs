@@ -20,6 +20,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ConstraintKinds     #-}
 
 module Fusion where
 
@@ -33,6 +34,7 @@ import           System.IO.Unsafe
 import           Types
 
 type Content = BS.ByteString
+type MonadFusion = MonadError FusionError
 
 decodeE :: (MonadFusion m) => Content -> m FeatureCollection
 decodeE bs = case eitherDecode bs of

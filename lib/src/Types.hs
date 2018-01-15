@@ -18,7 +18,6 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-{-# LANGUAGE ConstraintKinds   #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TemplateHaskell   #-}
 
@@ -33,8 +32,6 @@ import           Data.Map
 import           Data.Text
 import           Data.Vector
 import           GHC.Generics
-
-type MonadFusion = MonadError FusionError
 
 data FusionError = InvalidScheme String deriving Show
 
