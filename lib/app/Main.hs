@@ -45,8 +45,8 @@ main = do
     readF  = BS.readFile
     writeF = BS.writeFile
     -- Folding behavior
-    aggregate first second =
-      let targetFeatures    = view features $ second
+    aggregate provinces regions =
+      let regionFeatures    = view features $ regions
           isBrusselFeature  = (==) brusselFeatureId
           filterBrusselOnly = V.filter (isBrusselFeature . view featureId)
-      in first & features %~ ((V.++) (filterBrusselOnly targetFeatures))
+      in provinces & features %~ ((V.++) (filterBrusselOnly regionFeatures))
