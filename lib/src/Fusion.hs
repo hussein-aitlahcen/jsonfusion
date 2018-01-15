@@ -45,11 +45,18 @@ geoFusion ::
   => Aggregate
   -> FilePath
   -> FilePath
-  -> m Content
-geoFusion aggregate monolithPath absorbablePath = do
-   monolithContent <- liftIO $ BS.readFile monolithPath
-   targetContent <- liftIO $ BS.readFile absorbablePath
-   monolith <- decodeE monolithContent
-   absorbable <- decodeE targetContent
-   let aggregat = aggregate monolith absorbable
-   pure . encode $ aggregat
+  -> FilePath
+  -> m ()
+geoFusion aggregate monolithPath absorbablePath outputPath = do
+  say "Reading files..."
+  monolithContent <- liftIO $ BS.readFile monolithPath
+  targetContent   <- liftIO $ BS.readFile absorbablePath
+  say "Decoding contents..."
+  monolith   <- decodeE monolithContent
+  absorbable <- decodeE targetContent
+  say "Flushing to output..."
+  let aggregat = aggregate monolith absorbable
+  liftIO $ BS.writeFile outputPath $ encode aggregat
+  say "Done."
+  where
+    say msg = liftIO $ putStrLn msg

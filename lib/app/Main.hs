@@ -15,10 +15,11 @@ main :: IO ()
 main = do
   let monolith   = "../files/admin_level_6.geojson"
       absorbable = "../files/admin_level_4.geojson"
-  merged <- runExceptT $ geoFusion aggregate monolith absorbable
+      output     = "./merged.geojson"
+  merged <- runExceptT $ geoFusion aggregate monolith absorbable output
   case merged of
-    Right content -> BS.writeFile "merged.geojson" content
-    Left msg      -> putStrLn $ "Unlucky boy: " ++ show msg
+    Left msg -> putStrLn $ "Unlucky boy: " ++ show msg
+    _        -> pure ()
   where
     -- Folding behavior
     aggregate first second =
