@@ -20,8 +20,8 @@ Bruxelles n'est pas un département, mais seulement une région.
 Pour construire notre mappage nous avons donc besoin de fusionner les provinces
 et la région de Bruxelles.
 
---
 wiki: https://fr.wikipedia.org/wiki/ISO_3166-2:BE
+
 geojson: https://s3.amazonaws.com/osm-polygons.mapzen.com/belgium_geojson.tgz
 
 ## Solution
