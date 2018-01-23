@@ -58,5 +58,3 @@ main = do
         Left error        -> putStrLn $ "An error occured while merging the two files: " ++ show error
         Right fullBelgium -> BS.writeFile belgiumPath fullBelgium
     Left error -> putStrLn $ "An error occured while parsing arguments: " ++ error
-  where
-    -- Folding behavior
