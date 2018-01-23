@@ -50,7 +50,7 @@ readAndFusion (provincesPath, regionsPath, outputPath) = do
           filterBrusselOnly     = V.filter isBrusselFeature
           brussel               = filterBrusselOnly regionFeatures
           provincesFeatures     = features provinces
-      in provinces { features   = (V.++) provincesFeatures brussel }
+      in provinces { features   = provincesFeatures V.++ brussel }
 
 main :: IO ()
 main = do
