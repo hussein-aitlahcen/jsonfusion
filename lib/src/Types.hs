@@ -23,8 +23,9 @@ module Types where
 
 import           Data.Aeson
 import           Data.Map
+import           Data.Semigroup
 import           Data.Text
-import           Data.Vector
+import           Data.Vector    as V
 
 type ObjectType = Text
 type Geocoding  = Value
@@ -79,3 +80,8 @@ instance FromJSON Feature where
               <*> o .: "geometry"
   parseJSON _ = error "Invalid object"
 
+instance Semigroup FeatureCollection where
+  (<>) left right = left { features = leftFeatures V.++ rightFeatures }
+    where
+      leftFeatures = features left
+      rightFeatures = features right

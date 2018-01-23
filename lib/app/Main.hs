@@ -24,7 +24,7 @@ module Main where
 import           Control.Monad.Except (MonadIO, MonadError, runExceptT, throwError, liftIO)
 import           Data.Aeson (eitherDecode, encode)
 import qualified Data.ByteString.Lazy.Char8 as BS
-import           Data.Semigroup
+import           Data.Semigroup ((<>))
 import qualified Data.Vector as V
 import           System.Environment (getArgs)
 import           Types
@@ -34,12 +34,6 @@ type Content = BS.ByteString
 
 brusselFeatureId :: FeatureId
 brusselFeatureId = 54094
-
-instance Semigroup FeatureCollection where
-  (<>) left right = left { features = leftFeatures V.++ rightFeatures }
-    where
-      leftFeatures = features left
-      rightFeatures = features right
 
 decodeFeature :: (MonadError String m) => Content -> m FeatureCollection
 decodeFeature content = case eitherDecode content of
