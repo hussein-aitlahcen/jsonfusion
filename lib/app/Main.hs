@@ -27,11 +27,13 @@ import           JsonFusion                 (jsonFusion)
 import           System.Environment         (getArgs)
 import           Types
 
+type Arguments = (FilePath, FilePath, FilePath)
+
 brusselFeatureId :: FeatureId
 brusselFeatureId = 54094
 
-parseArguments :: [String] -> Either String (FilePath, FilePath, FilePath)
-parseArguments (filePathA:filePathB:outputFilePath:[]) = Right (filePathA, filePathB, outputFilePath)
+parseArguments :: [String] -> Either String Arguments
+parseArguments (provincesPath:regionPaths:outputFilePath:[]) = Right (provincesPath, regionPaths, outputFilePath)
 parseArguments _ = Left "Only two arguments are allowed, please give them this way: <filePathA> <filePathB> <outputFilePath>"
 
 main :: IO ()
