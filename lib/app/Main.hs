@@ -33,28 +33,27 @@ brusselFeatureId = 54094
 
 parseArguments :: [String] -> Either String Arguments
 parseArguments (provincesPath:regionPaths:outputFilePath:[]) = Right (provincesPath, regionPaths, outputFilePath)
-parseArguments _ = Left "Only two arguments are allowed, please give them this way: <filePathA> <filePathB> <outputFilePath>"
+parseArguments _ = Left "Only two arguments are allowed, please give them this way: <provincesFilePath> <regionsFilePath> <outputFilePath>"
 
-readAndFusion :: Arguments -> IO ()
+aggregate :: FeatureCollection -> FeatureCollection -> FeatureCollection
+aggregate provinces regions = provinces { features = provincesFeatures V.++ brussel }
+  where regionFeatures      = features regions
+        isBrusselFeature    = (==) brusselFeatureId . featureId
+        filterBrusselOnly   = V.filter isBrusselFeature
+        brussel             = filterBrusselOnly regionFeatures
+        provincesFeatures   = features provinces
+
+readAndFusion :: Arguments -> IO (Either FusionError ())
 readAndFusion (provincesPath, regionsPath, outputPath) = do
   provincesContent <- BS.readFile provincesPath
   regionsContent   <- BS.readFile regionsPath
   merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
-  case merged of
-    Left error        -> putStrLn $ "An error occured while merging the two files: " ++ show error
-    Right fullBelgium -> BS.writeFile outputPath fullBelgium
-  where
-    aggregate provinces regions =
-      let regionFeatures        = features regions
-          isBrusselFeature      = (==) brusselFeatureId . featureId
-          filterBrusselOnly     = V.filter isBrusselFeature
-          brussel               = filterBrusselOnly regionFeatures
-          provincesFeatures     = features provinces
-      in provinces { features   = provincesFeatures V.++ brussel }
+  mapM (BS.writeFile outputPath) merged
 
 main :: IO ()
 main = do
-  result <- mapM readAndFusion . parseArguments =<< getArgs
+  result <- mapM readAndFusion <$> parseArguments =<< getArgs
   case result of
-    Right _    -> putStrLn "Success"
-    Left error -> putStrLn $ "Failure: " ++ error
+    Right (Right _)          -> putStrLn "Sucessfully merged the two files"
+    Right (Left fusionError) -> putStrLn $ "Fusion error: " ++ show fusionError
+    Left error               -> putStrLn $ "Arguments error: " ++ error
