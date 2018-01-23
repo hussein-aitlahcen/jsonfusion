@@ -22,7 +22,7 @@ module Main where
 import           Control.Monad.Except       (runExceptT)
 import qualified Data.ByteString.Lazy.Char8 as BS
 import qualified Data.Vector                as V
-import           JsonFusion                 (Content, FusionError, jsonFusion)
+import           JsonFusion                 (FusionError, jsonFusion)
 import           System.Environment         (getArgs)
 import           Types
 
@@ -56,4 +56,4 @@ main = do
   case result of
     Right (Right _)          -> putStrLn "Sucessfully merged the two files"
     Right (Left fusionError) -> putStrLn $ "Fusion error: " ++ show fusionError
-    Left error               -> putStrLn $ "Arguments error: " ++ error
+    Left msg                 -> putStrLn $ "Arguments error: " ++ msg
