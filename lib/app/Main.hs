@@ -35,15 +35,13 @@ main :: IO ()
 main = do
   -- Yeah yeah we sould correctly parse our input arguments :P
   (provincesPath:regionsPath:beligiumPath:_)  <- getArgs
-  provincesContent <- readF provincesPath
-  regionsContent   <- readF regionsPath
+  provincesContent <- BS.readFile provincesPath
+  regionsContent   <- BS.readFile regionsPath
   merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
   case merged of
     Left msg          -> putStrLn $ "Unlucky boy: " ++ show msg
-    Right fullBelgium -> writeF beligiumPath fullBelgium
+    Right fullBelgium -> BS.writeFile beligiumPath fullBelgium
   where
-    readF  = BS.readFile
-    writeF = BS.writeFile
     -- Folding behavior
     aggregate provinces regions =
       let regionFeatures    = view features regions
