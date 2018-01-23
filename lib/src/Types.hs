@@ -21,7 +21,6 @@
 
 module Types where
 
-import           Control.Applicative
 import           Data.Aeson
 import           Data.Map
 import           Data.Text
@@ -57,6 +56,7 @@ instance ToJSON FeatureCollection where
 instance FromJSON FeatureCollection where
   parseJSON (Object o) =
     FeatureCollection <$> o .: "type" <*> o .: "geocoding" <*> o .: "features"
+  parseJSON _ = error "Invalid object"
 
 instance ToJSON Feature where
   toJSON (Feature fid osmt tf n props geom) =
@@ -77,3 +77,5 @@ instance FromJSON Feature where
               <*> o .: "name"
               <*> o .: "properties"
               <*> o .: "geometry"
+  parseJSON _ = error "Invalid object"
+
