@@ -30,16 +30,22 @@ import           Types
 brusselFeatureId :: FeatureId
 brusselFeatureId = 54094
 
+parseArguments :: [String] -> Either String (FilePath, FilePath, FilePath)
+parseArguments (filePathA:filePathB:outputFilePath:[]) = Right (filePathA, filePathB, outputFilePath)
+parseArguments _ = Left "Only two arguments are allowed, please give them this way: <filePathA> <filePathB> <outputFilePath>"
+
 main :: IO ()
 main = do
-  -- Yeah yeah we sould correctly parse our input arguments :P
-  (provincesPath:regionsPath:beligiumPath:_)  <- getArgs
-  provincesContent <- BS.readFile provincesPath
-  regionsContent   <- BS.readFile regionsPath
-  merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
-  case merged of
-    Left msg          -> putStrLn $ "Unlucky boy: " ++ show msg
-    Right fullBelgium -> BS.writeFile beligiumPath fullBelgium
+  arguments <- parseArguments <$> getArgs
+  case arguments of
+    Right (provincesPath, regionsPath, belgiumPath) -> do
+      provincesContent <- BS.readFile provincesPath
+      regionsContent   <- BS.readFile regionsPath
+      merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
+      case merged of
+        Left msg          -> putStrLn $ "An error occured while merging the two files: " ++ show msg
+        Right fullBelgium -> BS.writeFile belgiumPath fullBelgium
+    Left msg -> putStrLn $ "An error occured while parsing arguments: " ++ msg
   where
     -- Folding behavior
     aggregate provinces regions =
