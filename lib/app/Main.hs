@@ -27,8 +27,7 @@ import           JsonFusion                 (jsonFusion)
 import           System.Environment         (getArgs)
 import           Types
 
--- Could have use the ISO string aswell,
--- but we would have to project the inner 'property' object...
+brusselFeatureId :: FeatureId
 brusselFeatureId = 54094
 
 main :: IO ()
