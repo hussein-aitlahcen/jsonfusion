@@ -59,7 +59,7 @@ parseArguments :: [String] -> Either String Arguments
 parseArguments (provincesPath:regionPaths:outputFilePath:[]) =
   Right (provincesPath, regionPaths, outputFilePath)
 parseArguments _ =
-  Left "Only two arguments are allowed, please give them this way: <provincesFilePath> <regionsFilePath> <outputFilePath>"
+  Left "Only three arguments are allowed, please give them this way: <provincesFilePath> <regionsFilePath> <outputFilePath>"
 
 main :: IO ()
 main = do
