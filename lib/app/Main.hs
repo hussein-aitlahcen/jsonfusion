@@ -17,43 +17,60 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+{-# LANGUAGE FlexibleContexts #-}
+
 module Main where
 
-import           Control.Monad.Except       (runExceptT)
+import           Control.Monad.Except (MonadIO, MonadError, runExceptT, throwError, liftIO)
+import           Data.Aeson (eitherDecode, encode)
 import qualified Data.ByteString.Lazy.Char8 as BS
-import qualified Data.Vector                as V
-import           JsonFusion                 (FusionError, jsonFusion)
-import           System.Environment         (getArgs)
+import           Data.Semigroup
+import qualified Data.Vector as V
+import           System.Environment (getArgs)
 import           Types
 
 type Arguments = (FilePath, FilePath, FilePath)
+type Content = BS.ByteString
 
 brusselFeatureId :: FeatureId
 brusselFeatureId = 54094
 
+instance Semigroup FeatureCollection where
+  (<>) left right = left { features = leftFeatures V.++ rightFeatures }
+    where
+      leftFeatures = features left
+      rightFeatures = features right
+
+decodeFeature :: (MonadError String m) => Content -> m FeatureCollection
+decodeFeature content = case eitherDecode content of
+                          Right featureCollection -> pure featureCollection
+                          Left msg                -> throwError msg
+
+readAndMerge :: (MonadIO m, MonadError String m) => Arguments -> m ()
+readAndMerge (provincesPath, regionsPath, outputPath) = do
+  provincesContent <- liftIO $ BS.readFile provincesPath
+  regionsContent   <- liftIO $ BS.readFile regionsPath
+  provinces        <- decodeFeature provincesContent
+  regions          <- decodeFeature regionsContent
+  let regionFeatures    = features regions
+      isBrusselFeature  = (==) brusselFeatureId . featureId
+      filterBrusselOnly = V.filter isBrusselFeature
+      brussel           = filterBrusselOnly regionFeatures
+      patchedRegions    = regions { features = brussel }
+      merged            = provinces <> patchedRegions
+  liftIO . BS.writeFile outputPath . encode $ merged
+
 parseArguments :: [String] -> Either String Arguments
-parseArguments (provincesPath:regionPaths:outputFilePath:[]) = Right (provincesPath, regionPaths, outputFilePath)
-parseArguments _ = Left "Only two arguments are allowed, please give them this way: <provincesFilePath> <regionsFilePath> <outputFilePath>"
-
-aggregate :: FeatureCollection -> FeatureCollection -> FeatureCollection
-aggregate provinces regions = provinces { features = provincesFeatures V.++ brussel }
-  where regionFeatures      = features regions
-        isBrusselFeature    = (==) brusselFeatureId . featureId
-        filterBrusselOnly   = V.filter isBrusselFeature
-        brussel             = filterBrusselOnly regionFeatures
-        provincesFeatures   = features provinces
-
-readAndFusion :: Arguments -> IO (Either FusionError ())
-readAndFusion (provincesPath, regionsPath, outputPath) = do
-  provincesContent <- BS.readFile provincesPath
-  regionsContent   <- BS.readFile regionsPath
-  merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
-  mapM (BS.writeFile outputPath) merged
+parseArguments (provincesPath:regionPaths:outputFilePath:[]) =
+  Right (provincesPath, regionPaths, outputFilePath)
+parseArguments _ =
+  Left "Only two arguments are allowed, please give them this way: <provincesFilePath> <regionsFilePath> <outputFilePath>"
 
 main :: IO ()
 main = do
-  result <- mapM readAndFusion <$> parseArguments =<< getArgs
+  result <- runExceptT . mapM readAndMerge <$> parseArguments =<< getArgs
   case result of
-    Right (Right _)          -> putStrLn "Sucessfully merged the two files"
-    Right (Left fusionError) -> putStrLn $ "Fusion error: " ++ show fusionError
-    Left msg                 -> putStrLn $ "Arguments error: " ++ msg
+    Right (Right _)       -> putStrLn "Sucessfully merged the two features."
+    Right (Left argError) -> putStrLn $ "Arguments error: " ++ argError
+    Left decodeError      -> putStrLn $ "Decoding error: " ++ decodeError
+
