@@ -23,7 +23,7 @@ import           Control.Lens               (view, (%~), (&))
 import           Control.Monad.Except       (runExceptT)
 import qualified Data.ByteString.Lazy.Char8 as BS
 import qualified Data.Vector                as V
-import           JsonFusion                 (jsonFusion)
+import           JsonFusion                 (Content, FusionError, jsonFusion)
 import           System.Environment         (getArgs)
 import           Types
 
@@ -36,22 +36,27 @@ parseArguments :: [String] -> Either String Arguments
 parseArguments (provincesPath:regionPaths:outputFilePath:[]) = Right (provincesPath, regionPaths, outputFilePath)
 parseArguments _ = Left "Only two arguments are allowed, please give them this way: <filePathA> <filePathB> <outputFilePath>"
 
-main :: IO ()
-main = do
-  arguments <- parseArguments <$> getArgs
-  case arguments of
-    Right (provincesPath, regionsPath, belgiumPath) -> do
-      provincesContent <- BS.readFile provincesPath
-      regionsContent   <- BS.readFile regionsPath
-      merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
-      case merged of
-        Left error          -> putStrLn $ "An error occured while merging the two files: " ++ show error
-        Right fullBelgium -> BS.writeFile belgiumPath fullBelgium
-    Left error -> putStrLn $ "An error occured while parsing arguments: " ++ error
+readAndFusion :: Arguments -> IO (Either FusionError Content)
+readAndFusion (provincesPath, regionsPath, outputPath) = do
+  provincesContent <- BS.readFile provincesPath
+  regionsContent   <- BS.readFile regionsPath
+  pure $ jsonFusion aggregate provincesContent regionsContent
   where
-    -- Folding behavior
     aggregate provinces regions =
       let regionFeatures    = view features regions
           isBrusselFeature  = (==) brusselFeatureId . view featureId
           filterBrusselOnly = V.filter isBrusselFeature
       in provinces & features %~ (V.++) (filterBrusselOnly regionFeatures)
+
+main :: IO ()
+main = do
+  arguments <- parseArguments <$> getArgs
+  case arguments of
+    Right args@(_, _, belgiumPath) -> do
+      merged <- readAndFusion args
+      case merged of
+        Left error        -> putStrLn $ "An error occured while merging the two files: " ++ show error
+        Right fullBelgium -> BS.writeFile belgiumPath fullBelgium
+    Left error -> putStrLn $ "An error occured while parsing arguments: " ++ error
+  where
+    -- Folding behavior
