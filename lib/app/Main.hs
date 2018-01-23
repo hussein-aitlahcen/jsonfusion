@@ -21,12 +21,13 @@
 
 module Main where
 
-import           Control.Monad.Except (MonadIO, MonadError, runExceptT, throwError, liftIO)
-import           Data.Aeson (eitherDecode, encode)
+import           Control.Monad.Except       (MonadError, MonadIO, liftIO,
+                                             runExceptT, throwError)
+import           Data.Aeson                 (eitherDecode, encode)
 import qualified Data.ByteString.Lazy.Char8 as BS
-import           Data.Semigroup ((<>))
-import qualified Data.Vector as V
-import           System.Environment (getArgs)
+import           Data.Semigroup             ((<>))
+import qualified Data.Vector                as V
+import           System.Environment         (getArgs)
 import           Types
 
 type Arguments = (FilePath, FilePath, FilePath)
