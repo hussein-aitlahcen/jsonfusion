@@ -21,7 +21,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 module JsonFusion
-  ( jsonFusion
+  ( jsonFusion,
+    FusionError
   ) where
 
 import           Control.Monad.Except       (MonadError, throwError)
