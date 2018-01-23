@@ -26,21 +26,6 @@ geojson: https://s3.amazonaws.com/osm-polygons.mapzen.com/belgium_geojson.tgz
 
 ## Solution
 
-Créer une petite librairie qui permet de fusionner deux fichier JSON.
-Le comportement de la fusion est fournit pas l'utilisateur de la librairie.
-
-En l'occurrence, on fusionne la région de de Bruxelles avec les provinces.
-Elle est identifiable par son numéro '54094', il est donc assez simple de cibler
-cet élément dans le fichier et de l'intégrer aux provinces.
-
-J'ai choisi de séparé le code impure du pure, ainsi que les types manipulés
-(la librairie est générique pour n'importe quelle classe FromJSON/ToJSON d'Aeson).
-
-Pour rendre la fusion plus claire, j'utilise des lens, qui me premettent de traverser
-la structure et de cibler les éléments que je souhaite modifier (purely, obviously).
-
-Il suffit d'exécuter les commandes suivants pour obtenir le fichier geojson:
-
 `cd lib`
 
 `stack build`
