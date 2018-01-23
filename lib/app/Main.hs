@@ -19,7 +19,6 @@
 
 module Main where
 
-import           Control.Lens               (view, (%~), (&))
 import           Control.Monad.Except       (runExceptT)
 import qualified Data.ByteString.Lazy.Char8 as BS
 import qualified Data.Vector                as V
@@ -36,25 +35,26 @@ parseArguments :: [String] -> Either String Arguments
 parseArguments (provincesPath:regionPaths:outputFilePath:[]) = Right (provincesPath, regionPaths, outputFilePath)
 parseArguments _ = Left "Only two arguments are allowed, please give them this way: <filePathA> <filePathB> <outputFilePath>"
 
-readAndFusion :: Arguments -> IO (Either FusionError Content)
+readAndFusion :: Arguments -> IO ()
 readAndFusion (provincesPath, regionsPath, outputPath) = do
   provincesContent <- BS.readFile provincesPath
   regionsContent   <- BS.readFile regionsPath
-  pure $ jsonFusion aggregate provincesContent regionsContent
+  merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
+  case merged of
+    Left error        -> putStrLn $ "An error occured while merging the two files: " ++ show error
+    Right fullBelgium -> BS.writeFile outputPath fullBelgium
   where
     aggregate provinces regions =
-      let regionFeatures    = view features regions
-          isBrusselFeature  = (==) brusselFeatureId . view featureId
-          filterBrusselOnly = V.filter isBrusselFeature
-      in provinces & features %~ (V.++) (filterBrusselOnly regionFeatures)
+      let regionFeatures        = features regions
+          isBrusselFeature      = (==) brusselFeatureId . featureId
+          filterBrusselOnly     = V.filter isBrusselFeature
+          brussel               = filterBrusselOnly regionFeatures
+          provincesFeatures     = features provinces
+      in provinces { features   = (V.++) provincesFeatures brussel }
 
 main :: IO ()
 main = do
-  arguments <- parseArguments <$> getArgs
-  case arguments of
-    Right args@(_, _, belgiumPath) -> do
-      merged <- readAndFusion args
-      case merged of
-        Left error        -> putStrLn $ "An error occured while merging the two files: " ++ show error
-        Right fullBelgium -> BS.writeFile belgiumPath fullBelgium
-    Left error -> putStrLn $ "An error occured while parsing arguments: " ++ error
+  result <- mapM readAndFusion . parseArguments =<< getArgs
+  case result of
+    Right _    -> putStrLn "Success"
+    Left error -> putStrLn $ "Failure: " ++ error

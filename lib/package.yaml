@@ -14,8 +14,6 @@ dependencies:
 - text
 - vector
 - aeson
-- lens
-- lens-aeson
 
 library:
   source-dirs: src

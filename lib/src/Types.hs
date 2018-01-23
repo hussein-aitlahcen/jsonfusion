@@ -18,19 +18,14 @@
 -- along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell   #-}
 
 module Types where
 
 import           Control.Applicative
-import           Control.Lens.TH
-import           Control.Monad.Except
 import           Data.Aeson
-import           Data.ByteString
 import           Data.Map
 import           Data.Text
 import           Data.Vector
-import           GHC.Generics
 
 type ObjectType = Text
 type Geocoding  = Value
@@ -41,18 +36,18 @@ type OsmType     = Text
 type FeatureName = Text
 
 data FeatureCollection = FeatureCollection
-  { _typeCollection :: ObjectType
-  , _geocoding      :: Geocoding
-  , _features       :: Features
+  { typeCollection :: ObjectType
+  , geocoding      :: Geocoding
+  , features       :: Features
   } deriving Show
 
 data Feature = Feature
-  { _featureId   :: FeatureId
-  , _osmType     :: OsmType
-  , _typeFeature :: ObjectType
-  , _name        :: FeatureName
-  , _properties  :: Map String String
-  , _geometry    :: Value
+  { featureId   :: FeatureId
+  , osmType     :: OsmType
+  , typeFeature :: ObjectType
+  , name        :: FeatureName
+  , properties  :: Map String String
+  , geometry    :: Value
   } deriving Show
 
 instance ToJSON FeatureCollection where
@@ -82,6 +77,3 @@ instance FromJSON Feature where
               <*> o .: "name"
               <*> o .: "properties"
               <*> o .: "geometry"
-
-makeLenses ''FeatureCollection
-makeLenses ''Feature
