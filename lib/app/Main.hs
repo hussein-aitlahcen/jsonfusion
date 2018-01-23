@@ -43,9 +43,9 @@ main = do
       regionsContent   <- BS.readFile regionsPath
       merged           <- runExceptT $ jsonFusion aggregate provincesContent regionsContent
       case merged of
-        Left msg          -> putStrLn $ "An error occured while merging the two files: " ++ show msg
+        Left error          -> putStrLn $ "An error occured while merging the two files: " ++ show error
         Right fullBelgium -> BS.writeFile belgiumPath fullBelgium
-    Left msg -> putStrLn $ "An error occured while parsing arguments: " ++ msg
+    Left error -> putStrLn $ "An error occured while parsing arguments: " ++ error
   where
     -- Folding behavior
     aggregate provinces regions =
