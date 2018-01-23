@@ -48,8 +48,8 @@ decodeFeature content = case eitherDecode content of
 
 readAndMerge :: (MonadIO m, MonadError String m) => Arguments -> m ()
 readAndMerge (provincesPath, regionsPath, outputPath) = do
-  provincesContent <- liftIO $ BS.readFile provincesPath
-  regionsContent   <- liftIO $ BS.readFile regionsPath
+  provincesContent <- liftIO . BS.readFile $ provincesPath
+  regionsContent   <- liftIO . BS.readFile $ regionsPath
   provinces        <- decodeFeature provincesContent
   regions          <- decodeFeature regionsContent
   let regionFeatures    = features regions
