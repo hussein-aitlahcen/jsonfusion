@@ -30,7 +30,7 @@ import           System.Environment (getArgs)
 import           Types
 
 type Arguments = (FilePath, FilePath, FilePath)
-type Content = BS.ByteString
+type Content   = BS.ByteString
 
 brusselFeatureId :: FeatureId
 brusselFeatureId = 54094
