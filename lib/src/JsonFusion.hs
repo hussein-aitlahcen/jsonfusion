@@ -22,7 +22,8 @@
 
 module JsonFusion
   ( jsonFusion,
-    FusionError
+    FusionError,
+    Content
   ) where
 
 import           Control.Monad.Except       (MonadError, throwError)
